@@ -67,11 +67,53 @@ def ucs(G: nx.Graph, start: int, pos):
     return visited, costs
 
 
-G = get_rand_connected_graph(8,0.3)
-pos = nx.spring_layout(G)
-start = get_center_vertex(G)
+def greedy_search(G: nx.Graph, start: int, goal: int, pos, heuristic):
+    visited = set()
+    queue = [(0, start)]
+
+    while queue:
+        _, vertex = heapq.heappop(queue)
+        if vertex == goal:
+            break
+
+        if vertex not in visited:
+            visited.add(vertex)
+
+            for neighbor in G[vertex]:
+                if neighbor not in visited:
+                    heuristic_cost = heuristic(pos, neighbor, goal)
+                    heapq.heappush(queue, (heuristic_cost, neighbor))
+
+            colors = ['green' if node == goal else 'red' if node in visited else 'blue' for node in G.nodes()]
+            edge_labels = nx.get_edge_attributes(G, 'weight')
+            plot_graph(G, pos, colors, edge_labels)
+
+    return visited
 
 
-dfs(G,start, pos)
-bfs(G,start, pos)
-ucs(G,start,pos)
+def a_star_search(G: nx.Graph, start: int, goal: int, pos, heuristic):
+    visited = set()
+    queue = [(0, start)]
+    actual_costs = {start: 0}
+
+    while queue:
+        _, vertex = heapq.heappop(queue)
+        if vertex == goal:
+            break
+
+        if vertex not in visited:
+            visited.add(vertex)
+
+            for neighbor in G[vertex]:
+                if neighbor not in visited:
+                    new_cost = actual_costs[vertex] + G[vertex][neighbor]['weight']
+                    if neighbor not in actual_costs or new_cost < actual_costs[neighbor]:
+                        actual_costs[neighbor] = new_cost
+                        total_cost = new_cost + heuristic(pos, neighbor, goal)
+                        heapq.heappush(queue, (total_cost, neighbor))
+
+            colors = ['green' if node == goal else 'red' if node in visited else 'blue' for node in G.nodes()]
+            edge_labels = nx.get_edge_attributes(G, 'weight')
+            plot_graph(G, pos, colors, edge_labels)
+
+    return visited
