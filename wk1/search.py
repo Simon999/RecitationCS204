@@ -42,7 +42,6 @@ def bfs(G:nx.Graph, start:int, pos):
 
     return visited
 
-# degraded to bfs here
 def ucs(G: nx.Graph, start: int, pos):
     visited = set()
     queue = [(0, start)]  # Priority queue as a list of tuples (cost, node)
