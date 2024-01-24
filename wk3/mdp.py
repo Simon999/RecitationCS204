@@ -75,17 +75,55 @@ class GridWorld:
                 best_future_q = max(self.q_values[next_state].values()) if not self.is_terminal(next_state) else 0
                 self.q_values[state][action] += alpha * (reward + gamma * best_future_q - self.q_values[state][action])
 
+    def draw(self, iteration):
+        fig, ax = plt.subplots()
+        cmap = ListedColormap(['white'])
+        ax.imshow(np.ones((self.height, self.width)), cmap=cmap, extent=[0, self.width, 0, self.height])
+
+        for state in self.states:
+            x, y = state
+            if state == self.obstacle:
+                ax.add_patch(plt.Rectangle((x, y), 1, 1, fill=True, color='grey', alpha=0.3))
+                continue
+
+            for action in self.actions:
+                q_value = self.q_values[state][action]
+                text_position = {
+                    'up': (x + 0.5, y + 0.25),
+                    'right': (x + 0.75, y + 0.5),
+                    'down': (x + 0.5, y + 0.75),
+                    'left': (x + 0.25, y + 0.5)
+                }
+                ax.text(*text_position[action], f"{q_value:.4f}", ha='center', va='center', fontsize=8)
+
+        ax.add_patch(plt.Rectangle(self.goal, 1, 1, fill=True, color='green', alpha=0.3))
+        ax.add_patch(plt.Rectangle(self.punish, 1, 1, fill=True, color='red', alpha=0.3))
+
+        for x in range(self.width + 1):
+            ax.axvline(x, color='black', linewidth=1)
+        for y in range(self.height + 1):
+            ax.axhline(y, color='black', linewidth=1)
+
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        plt.title(f"Q-values after {iteration} iterations")
+        plt.gca().invert_yaxis()
+        plt.show()
+
 # Parameters for the grid world
 width, height = 4, 3
 goal = (3, 0)
 punish = (3, 1)
 obstacle = (1, 1)
-living_reward = - 0.1
-noise = 0.2
+living_reward = - 0.0
+noise = 0.0
 
 # Q-learning parameters
 alpha = 0.1  # learning rate
-gamma = 0.9  # discount factor
+gamma = 1  # discount factor
 iterations = 100
 
 # Initialize the grid world
@@ -94,51 +132,4 @@ grid_world = GridWorld(width, height, goal, punish, obstacle, living_reward, noi
 # Q-learning algorithm
 for i in range(iterations):
     grid_world.update_q_values(alpha, gamma)
-
-# Visualization of the grid world and Q-values
-fig, ax = plt.subplots()
-
-# Create a white background with a grid
-cmap = ListedColormap(['white'])
-ax.imshow(np.ones((height, width)), cmap=cmap, extent=[0, width, 0, height])
-
-# Overlay the Q-values on the grid
-for state in grid_world.states:
-    x, y = state
-    if state == grid_world.obstacle:
-        ax.add_patch(plt.Rectangle((x, y), 1, 1, fill=True, color='grey', alpha=0.3))
-        continue
-
-    for action in grid_world.actions:
-        q_value = grid_world.q_values[state][action]
-        if action == 'up':
-            ax.text(x + 0.5, y + 0.25, f"{q_value:.2f}", ha='center', va='center', fontsize=8)
-        elif action == 'right':
-            ax.text(x + 0.75, y + 0.5, f"{q_value:.2f}", ha='center', va='center', fontsize=8)
-        elif action == 'down':
-            ax.text(x + 0.5, y + 0.75, f"{q_value:.2f}", ha='center', va='center', fontsize=8)
-        elif action == 'left':
-            ax.text(x + 0.25, y + 0.5, f"{q_value:.2f}", ha='center', va='center', fontsize=8)
-
-# Highlight the goal and punishment points
-ax.add_patch(plt.Rectangle(goal, 1, 1, fill=True, color='green', alpha=0.3))
-ax.add_patch(plt.Rectangle(punish, 1, 1, fill=True, color='red', alpha=0.3))
-
-# Draw the grid lines
-for x in range(width + 1):
-    ax.axvline(x, color='black', linewidth=1)
-for y in range(height + 1):
-    ax.axhline(y, color='black', linewidth=1)
-
-# Set the axis limits and remove the axis labels
-ax.set_xlim(0, width)
-ax.set_ylim(0, height)
-ax.set_xticks([])
-ax.set_yticks([])
-
-# Add a title to the plot
-plt.title("Q-values after {} iterations".format(iterations))
-
-# Display the Q-values plot
-plt.gca().invert_yaxis()  # Invert the y-axis to match the matrix coordinate system
-plt.show()
+    grid_world.draw(i+1)
