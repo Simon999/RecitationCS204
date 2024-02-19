@@ -1,4 +1,5 @@
 import numpy as np
+
 def knapsack(values, weights, W):
     '''
 You are given a set of items, each with a weight and a value, 
@@ -23,10 +24,14 @@ exceeding the weight limit of the knapsack.
             if weights[i - 1] <= w:
                 dp[i, w] = max(
                     dp[i - 1, w], 
-                    dp[i - 1, w - weights[i - 1]] + values[i - 1])
+                    dp[i - 1, w - weights[i - 1]] + values[i - 1]
+                )
+                # print(dp[i - 1, w])
+                # print(f'{dp[i - 1, w - weights[i - 1]]} + {values[i - 1]}')
             else:
                 dp[i, w] = dp[i - 1, w]
-        print(dp)
+            # input()
+            # print(dp)
     return dp[N, W]
 
 

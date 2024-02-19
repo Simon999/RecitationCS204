@@ -118,12 +118,12 @@ width, height = 4, 3
 goal = (3, 0)
 punish = (3, 1)
 obstacle = (1, 1)
-living_reward = - 0.0
-noise = 0.0
+living_reward = - 0.1
+noise = 0.2
 
 # Q-learning parameters
 alpha = 0.1  # learning rate
-gamma = 1  # discount factor
+gamma = 0.9  # discount factor
 iterations = 100
 
 # Initialize the grid world
@@ -133,3 +133,5 @@ grid_world = GridWorld(width, height, goal, punish, obstacle, living_reward, noi
 for i in range(iterations):
     grid_world.update_q_values(alpha, gamma)
     grid_world.draw(i+1)
+
+# grid_world.draw(100)
